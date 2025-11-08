@@ -65,6 +65,7 @@
             background: var(--gradient-primary);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .language-grid {
@@ -111,6 +112,7 @@
             display: flex;
             flex-direction: column;
             opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
         .app-header {
@@ -128,6 +130,13 @@
             background: var(--gradient-primary);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
         }
 
         .language-indicator {
@@ -140,9 +149,32 @@
             border: 1px solid var(--neon-purple);
         }
 
-        .header-controls {
+        .btn-check-code {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
             display: flex;
-            gap: 1rem;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            box-shadow: var(--glow-primary);
+        }
+
+        .btn-check-code:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(139, 92, 246, 0.6);
+        }
+
+        .btn-check-code:active {
+            transform: translateY(0);
+        }
+
+        .btn-check-code.analyzing {
+            animation: pulse 1.5s infinite;
         }
 
         .btn-change-language {
@@ -284,31 +316,7 @@
             color: var(--text-dust);
         }
 
-        .check-button {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            background: var(--gradient-primary);
-            color: white;
-            border: none;
-            border-radius: 50px;
-            padding: 1rem 2rem;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            box-shadow: var(--glow-primary);
-            transition: all 0.3s ease;
-            z-index: 100;
-        }
-
-        .check-button:hover {
-            transform: scale(1.05);
-        }
-
-        .language-suggestion {
+        .execution-result {
             background: var(--bg-nebula);
             padding: 1rem;
             margin: 0.5rem 0;
@@ -316,30 +324,20 @@
             border-left: 4px solid var(--neon-cyan);
         }
 
-        .language-suggestion h4 {
+        .execution-result h4 {
             color: var(--neon-cyan);
             margin-bottom: 0.5rem;
         }
 
-        .suggested-languages {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-            margin-top: 0.5rem;
-        }
-
-        .suggested-language {
-            background: var(--bg-stellar);
-            padding: 0.3rem 0.8rem;
+        .output-console {
+            background: var(--bg-deep-space);
+            padding: 0.75rem;
             border-radius: 4px;
-            cursor: pointer;
-            border: 1px solid var(--neon-cyan);
-            transition: all 0.2s ease;
-        }
-
-        .suggested-language:hover {
-            background: var(--neon-cyan);
-            color: white;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
         }
 
         .analysis-progress {
@@ -364,51 +362,93 @@
             background: var(--gradient-primary);
             transition: width 0.3s ease;
         }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(139, 92, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
+        }
+
+        .error-marker {
+            background-color: rgba(239, 68, 68, 0.1);
+            border-bottom: 2px wavy var(--error-crimson);
+        }
+
+        .warning-marker {
+            background-color: rgba(245, 158, 11, 0.1);
+            border-bottom: 2px wavy var(--warning-amber);
+        }
+
+        .suggestion-marker {
+            background-color: rgba(59, 130, 246, 0.1);
+            border-bottom: 2px wavy var(--info-sapphire);
+        }
+
+        @media (max-width: 1024px) {
+            .language-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .error-panel {
+                width: 300px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .editor-container {
+                flex-direction: column;
+            }
+            .error-panel {
+                width: 100%;
+                height: 300px;
+            }
+            .language-grid {
+                grid-template-columns: 1fr;
+            }
+            .header-controls {
+                gap: 0.5rem;
+            }
+            .btn-check-code span:last-child {
+                display: none;
+            }
+            .btn-check-code {
+                padding: 0.5rem;
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- Начальное меню выбора языка -->
     <div class="language-modal" id="language-modal">
         <div class="modal-header">
             <h2>Problem Code</h2>
             <p>Выберите язык программирования для начала работы</p>
         </div>
         <div class="language-grid">
-            <div class="language-card" data-lang="python">
-                <div class="language-icon">Py</div>
-                <div class="language-name">Python</div>
-            </div>
             <div class="language-card" data-lang="javascript">
                 <div class="language-icon">JS</div>
                 <div class="language-name">JavaScript</div>
+            </div>
+            <div class="language-card" data-lang="python">
+                <div class="language-icon">Py</div>
+                <div class="language-name">Python</div>
             </div>
             <div class="language-card" data-lang="html">
                 <div class="language-icon">H5</div>
                 <div class="language-name">HTML</div>
             </div>
-            <div class="language-card" data-lang="css">
-                <div class="language-icon">CS</div>
-                <div class="language-name">CSS</div>
-            </div>
-            <div class="language-card" data-lang="cpp">
-                <div class="language-icon">C+</div>
-                <div class="language-name">C++</div>
-            </div>
-            <div class="language-card" data-lang="java">
-                <div class="language-icon">Jv</div>
-                <div class="language-name">Java</div>
-            </div>
         </div>
     </div>
 
-    <!-- Основной интерфейс -->
     <div class="main-container" id="main-container">
         <header class="app-header">
             <div class="logo">Problem Code</div>
-            <div class="language-indicator">
-                <span class="current-language" id="current-language">Python</span>
-            </div>
             <div class="header-controls">
+                <div class="language-indicator">
+                    <span class="current-language" id="current-language">JavaScript</span>
+                </div>
+                <button class="btn-check-code" id="check-code">
+                    <span>🔍</span>
+                    <span>Проверить код</span>
+                </button>
                 <button class="btn-change-language" id="change-language">Сменить язык</button>
             </div>
         </header>
@@ -420,7 +460,7 @@
                         <div class="progress-bar">
                             <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
                         </div>
-                        <span>Анализ...</span>
+                        <span>Компиляция и анализ...</span>
                     </div>
                 </div>
                 <div id="code-editor"></div>
@@ -438,567 +478,774 @@
                 <div class="error-list" id="error-list"></div>
             </div>
         </main>
-        
-        <button class="check-button" id="check-code">
-            <span class="check-icon">🔍</span>
-            Проверить код
-        </button>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/clike/clike.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/esprima/4.0.1/esprima.min.js"></script>
     <script>
-        // Конфигурация языков
-        const languages = {
-            python: {
-                id: 'python',
-                name: 'Python',
-                syntax: 'python',
-                template: 'def main():\n    print("Hello, World!")\n\nif __name__ == "__main__":\n    main()',
-                keywords: ['def ', 'class ', 'import ', 'from ', 'as ', 'if ', 'elif ', 'else:', 'for ', 'while ', 'try:', 'except ', 'with ', 'lambda ', 'print(', 'range(', 'len(', '__name__'],
-                patterns: [/^def\s+\w+/, /^class\s+\w+/, /import\s+\w+/, /from\s+\w+/, /print\(/, /__\w+__/]
-            },
-            javascript: {
-                id: 'javascript',
-                name: 'JavaScript', 
-                syntax: 'javascript',
-                template: 'function main() {\n    console.log("Hello, World!");\n}\n\nmain();',
-                keywords: ['function', 'const ', 'let ', 'var ', 'if (', 'else {', 'for (', 'while (', 'console.log', 'return ', '=>', 'document.', 'window.'],
-                patterns: [/function\s*\w*\s*\(/, /const\s+\w+\s*=/, /let\s+\w+\s*=/, /console\.log/, /=>/, /document\./, /window\./]
-            },
-            html: {
-                id: 'html',
-                name: 'HTML',
-                syntax: 'html',
-                template: '<!DOCTYPE html>\n<html>\n<head>\n    <title>Document</title>\n</head>\n<body>\n    <h1>Hello, World!</h1>\n</body>\n</html>',
-                keywords: ['<!DOCTYPE', '<html', '<head', '<body', '<div', '<span', '<h1', '<p', 'class=', 'id=', '<script', '<style'],
-                patterns: [/<\!DOCTYPE html>/, /<html[\s>]/, /<head[\s>]/, /<body[\s>]/, /<[\w]+\s*[^>]*>/, /class=/, /id=/]
-            },
-            css: {
-                id: 'css',
-                name: 'CSS',
-                syntax: 'css', 
-                template: 'body {\n    margin: 0;\n    padding: 0;\n    font-family: Arial, sans-serif;\n}',
-                keywords: ['{', '}', ':', ';', 'margin', 'padding', 'font-family', 'color', 'background', 'width', 'height', '@media'],
-                patterns: [/\w+\s*\{/, /:\s*[^;]+;/, /@media/, /\.\w+/, /#\w+/]
-            },
-            cpp: {
-                id: 'cpp',
-                name: 'C++',
-                syntax: 'text/x-c++src',
-                template: '#include <iostream>\n\nint main() {\n    std::cout << "Hello, World!" << std::endl;\n    return 0;\n}',
-                keywords: ['#include', 'using namespace', 'int main()', 'std::cout', 'std::endl', 'return ', '<<'],
-                patterns: [/#include\s*[<"][^>"]+[>"]/, /using\s+namespace\s+std/, /int\s+main\s*\(\)/, /std::\w+/]
-            },
-            java: {
-                id: 'java',
-                name: 'Java',
-                syntax: 'text/x-java',
-                template: 'public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, World!");\n    }\n}',
-                keywords: ['public class', 'public static void main', 'System.out.println', 'String[] args'],
-                patterns: [/public\s+class\s+\w+/, /public\s+static\s+void\s+main\s*\(/, /System\.out\.println/]
-            }
-        };
-
-        let currentLanguage = null;
-        let editor = null;
-        let errorMarkers = [];
-
-        // Инициализация при загрузке
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeApp();
-        });
-
-        function initializeApp() {
-            initializeLanguageSelector();
-            // Всегда показываем начальное меню
-            showLanguageModal();
-        }
-
-        function initializeLanguageSelector() {
-            const languageCards = document.querySelectorAll('.language-card');
-            languageCards.forEach(card => {
-                card.addEventListener('click', function() {
-                    const lang = this.getAttribute('data-lang');
-                    selectLanguage(lang);
-                });
-            });
-
-            document.getElementById('change-language').addEventListener('click', function() {
-                showLanguageModal();
-            });
-
-            document.getElementById('check-code').addEventListener('click', analyzeCode);
-        }
-
-        function showLanguageModal() {
-            document.getElementById('language-modal').style.display = 'flex';
-            document.getElementById('main-container').style.opacity = '0';
-        }
-
-        function selectLanguage(lang) {
-            currentLanguage = languages[lang];
-            document.getElementById('current-language').textContent = currentLanguage.name;
-            document.getElementById('language-modal').style.display = 'none';
-            document.getElementById('main-container').style.opacity = '1';
-            
-            initializeEditor();
-        }
-
-        function initializeEditor() {
-            const editorElement = document.getElementById('code-editor');
-            
-            if (editor) {
-                editor.toTextArea();
-            }
-            
-            editor = CodeMirror(editorElement, {
-                value: currentLanguage.template,
-                mode: currentLanguage.syntax,
-                lineNumbers: true,
-                matchBrackets: true,
-                autoCloseBrackets: true,
-                indentUnit: 4,
-                theme: 'monokai',
-                lineWrapping: true
-            });
-        }
-
-        // РЕАЛЬНЫЙ АНАЛИЗАТОР КОДА
         class RealCodeAnalyzer {
-            async analyzeCode(code, language) {
+            constructor() {
+                this.languages = {
+                    javascript: {
+                        id: 'javascript',
+                        name: 'JavaScript',
+                        syntax: 'javascript',
+                        template: ``
+                    },
+                    python: {
+                        id: 'python',
+                        name: 'Python',
+                        syntax: 'python',
+                        template: ``
+                    },
+                    html: {
+                        id: 'html',
+                        name: 'HTML',
+                        syntax: 'html',
+                        template: ``
+                    }
+                };
+                
+                this.currentLanguage = null;
+                this.editor = null;
+                this.errorMarkers = [];
+            }
+
+            initializeApp() {
+                this.initializeLanguageSelector();
+                this.showLanguageModal();
+            }
+
+            initializeLanguageSelector() {
+                const languageCards = document.querySelectorAll('.language-card');
+                languageCards.forEach(card => {
+                    card.addEventListener('click', () => {
+                        const lang = card.getAttribute('data-lang');
+                        this.selectLanguage(lang);
+                    });
+                });
+
+                document.getElementById('change-language').addEventListener('click', () => {
+                    this.showLanguageModal();
+                });
+
+                document.getElementById('check-code').addEventListener('click', () => {
+                    this.analyzeCode();
+                });
+            }
+
+            showLanguageModal() {
+                document.getElementById('language-modal').style.display = 'flex';
+                document.getElementById('main-container').style.opacity = '0';
+            }
+
+            selectLanguage(lang) {
+                this.currentLanguage = this.languages[lang];
+                document.getElementById('current-language').textContent = this.currentLanguage.name;
+                document.getElementById('language-modal').style.display = 'none';
+                document.getElementById('main-container').style.opacity = '1';
+                
+                this.initializeEditor();
+            }
+
+            initializeEditor() {
+                const editorElement = document.getElementById('code-editor');
+                
+                if (this.editor) {
+                    this.editor.toTextArea();
+                }
+                
+                this.editor = CodeMirror(editorElement, {
+                    value: this.currentLanguage.template,
+                    mode: this.currentLanguage.syntax,
+                    lineNumbers: true,
+                    matchBrackets: true,
+                    autoCloseBrackets: true,
+                    indentUnit: 4,
+                    theme: 'monokai',
+                    lineWrapping: true
+                });
+                
+                this.clearErrorMarkers();
+                this.resetErrorPanel();
+            }
+
+            async analyzeCode() {
+                if (!this.editor || !this.currentLanguage) return;
+
+                const code = this.editor.getValue();
+                
+                const progress = document.getElementById('analysis-progress');
+                const progressFill = document.getElementById('progress-fill');
+                const checkButton = document.getElementById('check-code');
+                
+                progress.style.display = 'flex';
+                checkButton.classList.add('analyzing');
+
+                for (let i = 0; i <= 100; i += 20) {
+                    progressFill.style.width = i + '%';
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+
+                try {
+                    const results = await this.performRealAnalysis(code, this.currentLanguage);
+                    this.displayAnalysisResults(results, code);
+                } catch (error) {
+                    console.error('Ошибка анализа:', error);
+                    this.displayError('Ошибка при анализе кода: ' + error.message);
+                } finally {
+                    setTimeout(() => {
+                        progress.style.display = 'none';
+                        checkButton.classList.remove('analyzing');
+                        progressFill.style.width = '0%';
+                    }, 300);
+                }
+            }
+
+            async performRealAnalysis(code, language) {
                 const results = {
                     errors: [],
                     warnings: [],
                     suggestions: [],
-                    languageMismatches: [],
+                    executionResult: null,
                     score: 100
                 };
 
-                try {
-                    // Анализ языка
-                    const languageResults = this.languageDetectionAnalysis(code, language);
-                    results.languageMismatches.push(...languageResults.languageMismatches);
-
-                    // Синтаксический анализ
-                    const syntaxResults = this.syntaxAnalysis(code, language);
-                    results.errors.push(...syntaxResults.errors);
-                    results.warnings.push(...syntaxResults.warnings);
-
-                    // Стилистический анализ
-                    const styleResults = this.styleAnalysis(code, language);
-                    results.warnings.push(...styleResults.warnings);
-                    results.suggestions.push(...styleResults.suggestions);
-
-                    // Анализ безопасности
-                    const securityResults = this.securityAnalysis(code, language);
-                    results.warnings.push(...securityResults.warnings);
-
-                    // Best practices
-                    const practiceResults = this.bestPracticesAnalysis(code, language);
-                    results.suggestions.push(...practiceResults.suggestions);
-
-                } catch (error) {
-                    console.error('Ошибка анализа:', error);
+                if (!code.trim()) {
+                    results.errors.push({
+                        type: 'SYNTAX_ERROR',
+                        message: 'Код не может быть пустым',
+                        line: 1,
+                        column: 1
+                    });
+                    return results;
                 }
 
-                // Расчет оценки
+                switch (language.id) {
+                    case 'javascript':
+                        await this.analyzeJavaScript(code, results);
+                        break;
+                    case 'python':
+                        await this.analyzePython(code, results);
+                        break;
+                    case 'html':
+                        await this.analyzeHTML(code, results);
+                        break;
+                }
+
                 results.score = this.calculateScore(results);
                 return results;
             }
 
-            languageDetectionAnalysis(code, currentLang) {
-                const languageMismatches = [];
-                const detectedLanguages = this.detectLanguage(code);
-                
-                if (detectedLanguages.length > 0) {
-                    const bestMatch = detectedLanguages[0];
-                    if (bestMatch.id !== currentLang.id) {
-                        languageMismatches.push({
-                            type: 'LANGUAGE_MISMATCH',
-                            message: `Код содержит конструкции языка ${bestMatch.name}`,
-                            suggestedLanguages: detectedLanguages.slice(0, 2),
-                            line: 1,
-                            column: 1
-                        });
+            async analyzeJavaScript(code, results) {
+                try {
+                    const syntaxErrors = this.checkJavaScriptSyntax(code);
+                    results.errors.push(...syntaxErrors);
+
+                    if (syntaxErrors.length === 0) {
+                        const executionResult = await this.executeJavaScript(code);
+                        results.executionResult = executionResult;
+                        
+                        const additionalChecks = this.checkJavaScriptPatterns(code);
+                        results.warnings.push(...additionalChecks.warnings);
+                        results.suggestions.push(...additionalChecks.suggestions);
                     }
-                }
-
-                return { languageMismatches };
-            }
-
-            detectLanguage(code) {
-                const scores = {};
-                
-                Object.values(languages).forEach(lang => {
-                    let score = 0;
-                    // Проверка ключевых слов
-                    lang.keywords.forEach(keyword => {
-                        const count = (code.match(new RegExp(keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi')) || []).length;
-                        score += count * 2;
-                    });
-                    // Проверка паттернов
-                    lang.patterns.forEach(pattern => {
-                        const count = (code.match(pattern) || []).length;
-                        score += count * 3;
-                    });
-                    scores[lang.id] = score;
-                });
-                
-                return Object.entries(scores)
-                    .filter(([_, score]) => score > 0)
-                    .sort(([,a], [,b]) => b - a)
-                    .map(([langId]) => languages[langId]);
-            }
-
-            syntaxAnalysis(code, language) {
-                const errors = [];
-                const warnings = [];
-                const lines = code.split('\n');
-
-                // Проверка баланса скобок
-                const stack = [];
-                const brackets = { '(': ')', '[': ']', '{': '}' };
-
-                for (let i = 0; i < lines.length; i++) {
-                    const line = lines[i];
-                    for (let j = 0; j < line.length; j++) {
-                        const char = line[j];
-                        if (brackets[char]) {
-                            stack.push({ char, line: i + 1, col: j + 1 });
-                        } else if (Object.values(brackets).includes(char)) {
-                            if (stack.length === 0) {
-                                errors.push({
-                                    type: 'SYNTAX_ERROR',
-                                    message: `Лишняя закрывающая скобка '${char}'`,
-                                    line: i + 1,
-                                    column: j + 1
-                                });
-                            } else {
-                                const last = stack.pop();
-                                if (brackets[last.char] !== char) {
-                                    errors.push({
-                                        type: 'SYNTAX_ERROR',
-                                        message: `Несоответствие скобок: ожидалось '${brackets[last.char]}'`,
-                                        line: i + 1,
-                                        column: j + 1
-                                    });
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Незакрытые скобки
-                stack.forEach(({ char, line, col }) => {
-                    errors.push({
-                        type: 'SYNTAX_ERROR',
-                        message: `Незакрытая скобка '${char}'`,
-                        line: line,
-                        column: col
-                    });
-                });
-
-                // Проверка кавычек
-                let inString = false;
-                let quoteChar = '';
-                for (let i = 0; i < lines.length; i++) {
-                    const line = lines[i];
-                    for (let j = 0; j < line.length; j++) {
-                        const char = line[j];
-                        if ((char === '"' || char === "'") && (j === 0 || line[j-1] !== '\\')) {
-                            if (!inString) {
-                                inString = true;
-                                quoteChar = char;
-                            } else if (char === quoteChar) {
-                                inString = false;
-                            }
-                        }
-                    }
-                }
-
-                if (inString) {
-                    warnings.push({
-                        type: 'SYNTAX_WARNING',
-                        message: 'Возможно незакрытая строка',
-                        line: 1,
+                } catch (error) {
+                    results.errors.push({
+                        type: 'RUNTIME_ERROR',
+                        message: `Ошибка выполнения: ${error.message}`,
+                        line: this.extractLineFromError(error, code),
                         column: 1
                     });
                 }
-
-                return { errors, warnings };
             }
 
-            styleAnalysis(code, language) {
-                const warnings = [];
-                const suggestions = [];
-                const lines = code.split('\n');
+            checkJavaScriptSyntax(code) {
+                const errors = [];
+                try {
+                    esprima.parseScript(code, { 
+                        tolerant: false,
+                        loc: true,
+                        range: true
+                    });
+                    
+                } catch (error) {
+                    const lineMatch = error.message.match(/Line (\d+)/);
+                    const columnMatch = error.message.match(/Column (\d+)/);
+                    const description = error.message.split('\n')[0];
+                    
+                    errors.push({
+                        type: 'SYNTAX_ERROR',
+                        message: `Синтаксическая ошибка: ${description}`,
+                        line: lineMatch ? parseInt(lineMatch[1]) : 1,
+                        column: columnMatch ? parseInt(columnMatch[1]) : 1
+                    });
+                }
+                return errors;
+            }
 
-                // Проверка длины строк
-                lines.forEach((line, index) => {
-                    if (line.length > 120) {
-                        warnings.push({
-                            type: 'STYLE_WARNING',
-                            message: `Строка слишком длинная (${line.length} символов)`,
-                            line: index + 1,
-                            column: 120
+            async executeJavaScript(code) {
+                return new Promise((resolve) => {
+                    try {
+                        const originalConsoleLog = console.log;
+                        const logs = [];
+                        
+                        console.log = (...args) => {
+                            logs.push(args.map(arg => 
+                                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+                            ).join(' '));
+                        };
+
+                        const executionTimeout = setTimeout(() => {
+                            throw new Error('Превышено время выполнения (5 секунд)');
+                        }, 5000);
+
+                        try {
+                            const result = Function(`
+                                "use strict";
+                                ${code}
+                            `)();
+                            
+                            clearTimeout(executionTimeout);
+                            console.log = originalConsoleLog;
+                            
+                            resolve({
+                                output: logs.join('\n'),
+                                returnValue: result,
+                                success: true
+                            });
+                            
+                        } catch (error) {
+                            clearTimeout(executionTimeout);
+                            console.log = originalConsoleLog;
+                            throw error;
+                        }
+                        
+                    } catch (error) {
+                        resolve({
+                            output: '',
+                            error: error.message,
+                            success: false
                         });
                     }
                 });
+            }
 
-                // Проверка отступов для Python
-                if (language.id === 'python') {
-                    let expectedIndent = 0;
-                    lines.forEach((line, index) => {
-                        if (line.trim() === '') return;
+            checkJavaScriptPatterns(code) {
+                const warnings = [];
+                const suggestions = [];
+                
+                try {
+                    const ast = esprima.parseScript(code, { tolerant: true, loc: true });
+                    
+                    const declaredVars = new Set();
+                    const usedVars = new Set();
+                    
+                    const traverse = (node) => {
+                        if (!node) return;
                         
-                        const currentIndent = line.search(/\S/);
-                        if (currentIndent % 4 !== 0 && currentIndent > 0) {
+                        if (node.type === 'VariableDeclarator' && node.id) {
+                            declaredVars.add(node.id.name);
+                        }
+                        if (node.type === 'FunctionDeclaration' && node.id) {
+                            declaredVars.add(node.id.name);
+                        }
+                        
+                        if (node.type === 'Identifier') {
+                            usedVars.add(node.name);
+                        }
+                        
+                        for (const key in node) {
+                            if (node[key] && typeof node[key] === 'object') {
+                                if (Array.isArray(node[key])) {
+                                    node[key].forEach(traverse);
+                                } else {
+                                    traverse(node[key]);
+                                }
+                            }
+                        }
+                    };
+                    
+                    traverse(ast);
+                    
+                    declaredVars.forEach(varName => {
+                        if (!usedVars.has(varName) && varName !== 'console') {
                             warnings.push({
-                                type: 'STYLE_WARNING',
-                                message: 'Некорректный отступ (должен быть кратен 4)',
-                                line: index + 1,
+                                type: 'UNUSED_VARIABLE',
+                                message: `Неиспользуемая переменная: ${varName}`,
+                                line: 1,
                                 column: 1
                             });
                         }
                     });
-                }
 
-                // Проверка табуляции
-                if (code.includes('\t')) {
-                    suggestions.push({
-                        type: 'STYLE_SUGGESTION',
-                        message: 'Рекомендуется использовать пробелы вместо табуляции',
+                    if (code.includes('console.log')) {
+                        warnings.push({
+                            type: 'DEBUG_CODE',
+                            message: 'Обнаружен console.log - уберите для продакшена',
+                            line: 1,
+                            column: 1
+                        });
+                    }
+
+                    if (code.includes(' == ')) {
+                        suggestions.push({
+                            type: 'CODE_STYLE',
+                            message: 'Используйте === вместо == для строгого сравнения',
+                            line: 1,
+                            column: 1
+                        });
+                    }
+
+                } catch (error) {
+                }
+                
+                return { warnings, suggestions };
+            }
+
+            async analyzePython(code, results) {
+                try {
+                    const pythonErrors = this.checkPythonSyntax(code);
+                    results.errors.push(...pythonErrors.errors);
+                    results.warnings.push(...pythonErrors.warnings);
+                    
+                    if (pythonErrors.errors.length === 0) {
+                        results.executionResult = {
+                            output: "Python код прошел базовую проверку синтаксиса",
+                            success: true
+                        };
+                    }
+                } catch (error) {
+                    results.errors.push({
+                        type: 'ANALYSIS_ERROR',
+                        message: `Ошибка анализа Python: ${error.message}`,
                         line: 1,
                         column: 1
                     });
                 }
-
-                return { warnings, suggestions };
             }
 
-            securityAnalysis(code, language) {
+            checkPythonSyntax(code) {
+                const errors = [];
                 const warnings = [];
-
-                // Проверка опасных конструкций
-                const dangerous = [
-                    { pattern: /eval\(/, message: 'Использование eval() может быть опасным' },
-                    { pattern: /exec\(/, message: 'Использование exec() может быть опасным' },
-                    { pattern: /innerHTML\s*=/, message: 'Прямое присвоение innerHTML может привести к XSS' }
-                ];
-
-                dangerous.forEach(({ pattern, message }) => {
-                    if (pattern.test(code)) {
+                
+                const lines = code.split('\n');
+                
+                lines.forEach((line, index) => {
+                    const lineNumber = index + 1;
+                    const trimmedLine = line.trim();
+                    
+                    if (trimmedLine.length === 0) return;
+                    
+                    if (line.includes(' ') && line.includes('\t')) {
                         warnings.push({
-                            type: 'SECURITY_WARNING',
-                            message: message,
-                            line: 1,
+                            type: 'INDENTATION_ERROR',
+                            message: 'Смешанные отступы (пробелы и табуляция)',
+                            line: lineNumber,
                             column: 1
+                        });
+                    }
+                    
+                    if (trimmedLine.endsWith(':')) {
+                        const nextLineIndex = index + 1;
+                        if (nextLineIndex < lines.length) {
+                            const nextLine = lines[nextLineIndex];
+                            if (nextLine.trim() && !nextLine.startsWith(' ') && !nextLine.startsWith('\t')) {
+                                errors.push({
+                                    type: 'INDENTATION_ERROR',
+                                    message: 'Отсутствует отступ после двоеточия',
+                                    line: nextLineIndex + 1,
+                                    column: 1
+                                });
+                            }
+                        }
+                    }
+                });
+                
+                const bracketStack = [];
+                const brackets = { '(': ')', '[': ']', '{': '}' };
+                
+                for (let i = 0; i < code.length; i++) {
+                    const char = code[i];
+                    if (brackets[char]) {
+                        bracketStack.push({ char, index: i });
+                    } else if (Object.values(brackets).includes(char)) {
+                        if (bracketStack.length === 0) {
+                            const line = this.getLineNumber(code, i);
+                            const column = this.getColumnNumber(code, i);
+                            errors.push({
+                                type: 'SYNTAX_ERROR',
+                                message: `Лишняя закрывающая скобка: ${char}`,
+                                line: line,
+                                column: column
+                            });
+                        } else {
+                            const lastBracket = bracketStack[bracketStack.length - 1];
+                            if (brackets[lastBracket.char] === char) {
+                                bracketStack.pop();
+                            } else {
+                                const line = this.getLineNumber(code, i);
+                                const column = this.getColumnNumber(code, i);
+                                errors.push({
+                                    type: 'SYNTAX_ERROR',
+                                    message: `Несоответствие скобок: ожидалась ${brackets[lastBracket.char]}, получена ${char}`,
+                                    line: line,
+                                    column: column
+                                });
+                            }
+                        }
+                    }
+                }
+                
+                bracketStack.forEach(({ char, index }) => {
+                    const line = this.getLineNumber(code, index);
+                    const column = this.getColumnNumber(code, index);
+                    errors.push({
+                        type: 'SYNTAX_ERROR',
+                        message: `Незакрытая скобка: ${char}`,
+                        line: line,
+                        column: column
+                    });
+                });
+                
+                lines.forEach((line, index) => {
+                    const lineNumber = index + 1;
+                    
+                    if (line.includes('print ') && !line.includes('print(')) {
+                        warnings.push({
+                            type: 'PYTHON_VERSION',
+                            message: 'Используйте print() как функцию (Python 3)',
+                            line: lineNumber,
+                            column: line.indexOf('print') + 1
+                        });
+                    }
+                    
+                    if (line.includes('xrange(')) {
+                        warnings.push({
+                            type: 'DEPRECATED',
+                            message: 'xrange устарел, используйте range',
+                            line: lineNumber,
+                            column: line.indexOf('xrange') + 1
                         });
                     }
                 });
-
-                return { warnings };
+                
+                return { errors, warnings };
             }
 
-            bestPracticesAnalysis(code, language) {
-                const suggestions = [];
-
-                if (language.id === 'python') {
-                    if (code.includes('print(') && !code.includes('__name__')) {
-                        suggestions.push({
-                            type: 'BEST_PRACTICE',
-                            message: 'Рекомендуется использовать if __name__ == "__main__"',
-                            line: 1,
-                            column: 1
+            async analyzeHTML(code, results) {
+                try {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(code, 'text/html');
+                    
+                    const parserErrors = doc.querySelectorAll('parsererror');
+                    if (parserErrors.length > 0) {
+                        parserErrors.forEach(error => {
+                            const errorText = error.textContent;
+                            const lineMatch = errorText.match(/line (\d+)/i);
+                            const line = lineMatch ? parseInt(lineMatch[1]) : 1;
+                            
+                            results.errors.push({
+                                type: 'SYNTAX_ERROR',
+                                message: 'Ошибка разбора HTML: ' + errorText.split('\n')[0],
+                                line: line,
+                                column: 1
+                            });
                         });
                     }
-                }
-
-                if (language.id === 'javascript') {
-                    if (code.includes(' == ') && !code.includes(' === ')) {
-                        suggestions.push({
-                            type: 'BEST_PRACTICE',
-                            message: 'Рекомендуется использовать === вместо ==',
-                            line: 1,
-                            column: 1
-                        });
+                    
+                    const htmlChecks = this.checkHTMLStructure(code);
+                    results.errors.push(...htmlChecks.errors);
+                    results.warnings.push(...htmlChecks.warnings);
+                    
+                    if (results.errors.length === 0) {
+                        results.executionResult = {
+                            output: "HTML код прошел проверку синтаксиса",
+                            success: true
+                        };
                     }
+                } catch (error) {
+                    results.errors.push({
+                        type: 'ANALYSIS_ERROR',
+                        message: `Ошибка анализа HTML: ${error.message}`,
+                        line: 1,
+                        column: 1
+                    });
                 }
+            }
 
-                return { suggestions };
+            checkHTMLStructure(code) {
+                const errors = [];
+                const warnings = [];
+                
+                if (!code.includes('<!DOCTYPE')) {
+                    warnings.push({
+                        type: 'MISSING_DOCTYPE',
+                        message: 'Рекомендуется добавить DOCTYPE',
+                        line: 1,
+                        column: 1
+                    });
+                }
+                
+                if (!code.includes('<html')) {
+                    warnings.push({
+                        type: 'MISSING_HTML',
+                        message: 'Отсутствует тег <html>',
+                        line: 1,
+                        column: 1
+                    });
+                }
+                
+                if (!code.includes('<head')) {
+                    warnings.push({
+                        type: 'MISSING_HEAD',
+                        message: 'Отсутствует тег <head>',
+                        line: 1,
+                        column: 1
+                    });
+                }
+                
+                if (!code.includes('<body')) {
+                    warnings.push({
+                        type: 'MISSING_BODY',
+                        message: 'Отсутствует тег <body>',
+                        line: 1,
+                        column: 1
+                    });
+                }
+                
+                if (!code.includes('<title>')) {
+                    warnings.push({
+                        type: 'MISSING_TITLE',
+                        message: 'Рекомендуется добавить тег <title>',
+                        line: 1,
+                        column: 1
+                    });
+                }
+                
+                return { errors, warnings };
+            }
+
+            getLineNumber(code, index) {
+                return code.substring(0, index).split('\n').length;
+            }
+
+            getColumnNumber(code, index) {
+                const textBefore = code.substring(0, index);
+                const lastNewline = textBefore.lastIndexOf('\n');
+                return lastNewline === -1 ? index + 1 : index - lastNewline;
+            }
+
+            extractLineFromError(error, code) {
+                const lineMatch = error.stack?.match(/<anonymous>:(\d+):(\d+)/) || 
+                                error.message?.match(/line (\d+)/i);
+                return lineMatch ? parseInt(lineMatch[1]) : 1;
             }
 
             calculateScore(results) {
                 let score = 100;
-                score -= results.errors.length * 10;
-                score -= results.warnings.length * 3;
-                score -= results.languageMismatches.length * 5;
+                score -= results.errors.length * 15;
+                score -= results.warnings.length * 5;
                 return Math.max(0, score);
             }
-        }
 
-        async function analyzeCode() {
-            if (!editor || !currentLanguage) return;
-
-            const code = editor.getValue();
-            const analyzer = new RealCodeAnalyzer();
-            
-            // Показываем прогресс
-            const progress = document.getElementById('analysis-progress');
-            const progressFill = document.getElementById('progress-fill');
-            progress.style.display = 'flex';
-            
-            // Анимация прогресса
-            for (let i = 0; i <= 100; i += 10) {
-                progressFill.style.width = i + '%';
-                await new Promise(resolve => setTimeout(resolve, 50));
-            }
-
-            try {
-                const results = await analyzer.analyzeCode(code, currentLanguage);
-                displayAnalysisResults(results);
-            } catch (error) {
-                console.error('Ошибка анализа:', error);
-            } finally {
-                setTimeout(() => {
-                    progress.style.display = 'none';
-                }, 500);
-            }
-        }
-
-        function displayAnalysisResults(results) {
-            // Очищаем предыдущие ошибки
-            if (errorMarkers) {
-                errorMarkers.forEach(marker => marker.clear());
-            }
-            errorMarkers = [];
-
-            // Обновляем статистику
-            document.getElementById('error-count').textContent = `${results.errors.length} ошибок`;
-            document.getElementById('warning-count').textContent = `${results.warnings.length} предупреждений`;
-            document.getElementById('suggestion-count').textContent = `${results.suggestions.length} предложений`;
-
-            const errorList = document.getElementById('error-list');
-            errorList.innerHTML = '';
-
-            // Показываем несоответствие языка
-            if (results.languageMismatches.length > 0) {
-                const mismatch = results.languageMismatches[0];
-                const suggestionDiv = document.createElement('div');
-                suggestionDiv.className = 'language-suggestion';
+            displayAnalysisResults(results, code) {
+                this.clearErrorMarkers();
                 
-                let languagesHTML = '';
-                mismatch.suggestedLanguages.forEach(lang => {
-                    languagesHTML += `<div class="suggested-language" data-lang="${lang.id}">${lang.name}</div>`;
+                document.getElementById('error-count').textContent = `${results.errors.length} ошибок`;
+                document.getElementById('warning-count').textContent = `${results.warnings.length} предупреждений`;
+                document.getElementById('suggestion-count').textContent = `${results.suggestions.length} предложений`;
+
+                const errorList = document.getElementById('error-list');
+                errorList.innerHTML = '';
+
+                if (results.executionResult) {
+                    this.displayExecutionResult(results.executionResult, errorList);
+                }
+
+                results.errors.forEach(error => {
+                    this.addIssueToPanel(error, 'error', errorList);
+                    this.markErrorInEditor(error, code);
                 });
-                
-                suggestionDiv.innerHTML = `
-                    <h4>🔍 Обнаружено возможное несоответствие языка</h4>
-                    <div class="error-description">${mismatch.message}</div>
-                    <div class="suggested-languages">${languagesHTML}</div>
-                `;
-                
-                errorList.appendChild(suggestionDiv);
 
-                // Обработчики для кнопок смены языка
-                suggestionDiv.querySelectorAll('.suggested-language').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const lang = this.getAttribute('data-lang');
-                        selectLanguage(lang);
-                    });
+                results.warnings.forEach(warning => {
+                    this.addIssueToPanel(warning, 'warning', errorList);
+                    this.markErrorInEditor(warning, code);
                 });
+
+                results.suggestions.forEach(suggestion => {
+                    this.addIssueToPanel(suggestion, 'suggestion', errorList);
+                });
+
+                this.displayScore(results, errorList);
             }
 
-            // Добавляем ошибки
-            results.errors.forEach(error => {
-                addIssueToPanel(error, 'error');
-                markErrorInEditor(error);
-            });
+            displayExecutionResult(result, errorList) {
+                const resultDiv = document.createElement('div');
+                resultDiv.className = 'execution-result';
+                
+                let content = '';
+                if (result.success) {
+                    content = `
+                        <h4>✅ Код выполнен успешно</h4>
+                        ${result.output ? `
+                        <div class="output-console">Вывод:\n${result.output}</div>
+                        ` : '<div class="output-console">Код выполнен без вывода</div>'}
+                        ${result.returnValue !== undefined ? `
+                        <div style="margin-top: 0.5rem; color: var(--success-emerald)">
+                            Возвращаемое значение: ${JSON.stringify(result.returnValue)}
+                        </div>
+                        ` : ''}
+                    `;
+                } else {
+                    content = `
+                        <h4>❌ Ошибка выполнения</h4>
+                        <div class="output-console" style="color: var(--error-crimson)">
+                            ${result.error}
+                        </div>
+                    `;
+                }
+                
+                resultDiv.innerHTML = content;
+                errorList.appendChild(resultDiv);
+            }
 
-            // Добавляем предупреждения
-            results.warnings.forEach(warning => {
-                addIssueToPanel(warning, 'warning');
-                markErrorInEditor(warning);
-            });
+            addIssueToPanel(issue, type, errorList) {
+                const item = document.createElement('div');
+                item.className = `error-item ${type}`;
 
-            // Добавляем предложения
-            results.suggestions.forEach(suggestion => {
-                addIssueToPanel(suggestion, 'suggestion');
-            });
+                const icons = {
+                    'error': '❌',
+                    'warning': '⚠️',
+                    'suggestion': '💡'
+                };
 
-            // Показываем общую оценку
-            if (results.errors.length === 0 && results.warnings.length === 0) {
-                const successItem = document.createElement('div');
-                successItem.className = 'error-item';
-                successItem.style.borderLeftColor = 'var(--success-emerald)';
-                successItem.innerHTML = `
+                item.innerHTML = `
                     <div class="error-header">
-                        <span class="error-icon">✅</span>
-                        <span class="error-title">Код проанализирован успешно!</span>
+                        <span class="error-icon">${icons[type]}</span>
+                        <span class="error-title">${issue.message}</span>
                     </div>
-                    <div class="error-description">Оценка качества: ${results.score}/100</div>
+                    <div class="error-location">Строка ${issue.line}, столбец ${issue.column}</div>
                 `;
-                errorList.appendChild(successItem);
+
+                if (issue.line) {
+                    item.addEventListener('click', () => {
+                        this.editor.setCursor({ 
+                            line: Math.max(0, issue.line - 1), 
+                            ch: Math.max(0, issue.column - 1) 
+                        });
+                        this.editor.focus();
+                    });
+                }
+
+                errorList.appendChild(item);
+            }
+
+            markErrorInEditor(issue, code) {
+                if (!issue.line || !this.editor) return;
+                
+                try {
+                    const lineIndex = Math.max(0, issue.line - 1);
+                    
+                    const from = { 
+                        line: lineIndex, 
+                        ch: Math.max(0, (issue.column || 1) - 1) 
+                    };
+                    const to = { 
+                        line: lineIndex, 
+                        ch: Math.max(1, (issue.column || 1)) 
+                    };
+                    
+                    const markerClass = issue.type.includes('ERROR') ? 'error-marker' : 
+                                      issue.type.includes('WARNING') ? 'warning-marker' : 'suggestion-marker';
+                    
+                    const marker = this.editor.markText(from, to, {
+                        className: markerClass,
+                        title: issue.message
+                    });
+                    
+                    this.errorMarkers.push(marker);
+                } catch (error) {
+                    console.error('Ошибка маркировки:', error);
+                }
+            }
+
+            displayScore(results, errorList) {
+                if (!this.editor.getValue().trim()) return;
+
+                const scoreItem = document.createElement('div');
+                scoreItem.className = 'error-item';
+                scoreItem.style.borderLeftColor = results.score >= 80 ? 'var(--success-emerald)' : 
+                                               results.score >= 60 ? 'var(--warning-amber)' : 'var(--error-crimson)';
+                
+                let message = '';
+                if (results.errors.length === 0 && results.warnings.length === 0) {
+                    message = 'Отлично! Код без ошибок и предупреждений';
+                } else if (results.score >= 80) {
+                    message = 'Хорошо! Небольшие замечания';
+                } else if (results.score >= 60) {
+                    message = 'Есть проблемы, требующие внимания';
+                } else {
+                    message = 'Критические ошибки! Требуется исправление';
+                }
+                
+                scoreItem.innerHTML = `
+                    <div class="error-header">
+                        <span class="error-icon">${results.score >= 60 ? '📊' : '🚨'}</span>
+                        <span class="error-title">Оценка качества кода: ${results.score}/100</span>
+                    </div>
+                    <div class="error-description">${message}</div>
+                `;
+                
+                errorList.appendChild(scoreItem);
+            }
+
+            displayError(message) {
+                const errorList = document.getElementById('error-list');
+                errorList.innerHTML = '';
+                
+                const errorItem = document.createElement('div');
+                errorItem.className = 'error-item';
+                errorItem.innerHTML = `
+                    <div class="error-header">
+                        <span class="error-icon">🚨</span>
+                        <span class="error-title">${message}</span>
+                    </div>
+                `;
+                
+                errorList.appendChild(errorItem);
+            }
+
+            clearErrorMarkers() {
+                if (this.errorMarkers && this.editor) {
+                    this.errorMarkers.forEach(marker => {
+                        try {
+                            marker.clear();
+                        } catch (error) {
+                            console.error('Ошибка при очистке маркера:', error);
+                        }
+                    });
+                    this.errorMarkers = [];
+                }
+            }
+
+            resetErrorPanel() {
+                document.getElementById('error-list').innerHTML = '';
+                document.getElementById('error-count').textContent = '0 ошибок';
+                document.getElementById('warning-count').textContent = '0 предупреждений';
+                document.getElementById('suggestion-count').textContent = '0 предложений';
             }
         }
 
-        function addIssueToPanel(issue, type) {
-            const errorList = document.getElementById('error-list');
-            const item = document.createElement('div');
-            item.className = `error-item ${type}`;
-
-            const icons = {
-                'error': '❌',
-                'warning': '⚠️',
-                'suggestion': '💡'
-            };
-
-            item.innerHTML = `
-                <div class="error-header">
-                    <span class="error-icon">${icons[type]}</span>
-                    <span class="error-title">${issue.message}</span>
-                </div>
-                <div class="error-location">Строка ${issue.line}, столбец ${issue.column}</div>
-            `;
-
-            if (issue.line) {
-                item.addEventListener('click', () => {
-                    editor.setCursor({ line: issue.line - 1, ch: issue.column - 1 });
-                    editor.focus();
-                });
-            }
-
-            errorList.appendChild(item);
-        }
-
-        function markErrorInEditor(issue) {
-            if (!issue.line) return;
-            
-            try {
-                const line = issue.line - 1;
-                const from = { line: line, ch: Math.max(0, (issue.column || 1) - 1) };
-                const to = { line: line, ch: Math.max(1, (issue.column || 1)) };
-                
-                const markerClass = issue.type.includes('ERROR') ? 'error-marker' : 
-                                  issue.type.includes('WARNING') ? 'warning-marker' : 'suggestion-marker';
-                
-                const marker = editor.markText(from, to, {
-                    className: markerClass,
-                    title: issue.message
-                });
-                
-                errorMarkers.push(marker);
-            } catch (error) {
-                console.error('Ошибка маркировки:', error);
-            }
-        }
+        document.addEventListener('DOMContentLoaded', () => {
+            const analyzer = new RealCodeAnalyzer();
+            analyzer.initializeApp();
+        });
     </script>
 </body>
 </html>
